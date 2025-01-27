@@ -11,6 +11,17 @@ const io = new Server(httpServer, {
 });
 
 const spaces = new Map();
+const threshhold = 10;
+const calculateDistance = (x1, y1,spaceId) => {
+    const users = spaces.get(spaceId);
+    const underThresholdUsers=users.forEach((user)=>{
+        const dis = Math.abs(x1 - user.x) + Math.abs(y1 - user.y);
+        if(dis<threshhold){
+            return user;
+        }
+    });
+    return underThresholdUsers;
+};
 
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -26,16 +37,17 @@ io.on('connection', (socket) => {
     });
 
     socket.on('updateAttributes', (spaceId, userAttributes) => {
+      
         const users = spaces.get(spaceId);
         if (users) {
             users.set(socket.id, userAttributes);
-            console.log(users);
             io.to(spaceId).emit('updateUsers', Array.from(users.values()));
         }
     });
 
+ 
     socket.on('message', (message, spaceId) => {
-        io.to(spaceId).emit('message', message);
+        socket.to(spaceId).emit('message', message);
     });
 
     socket.on('disconnect', () => {
