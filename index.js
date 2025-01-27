@@ -41,7 +41,7 @@ io.on('connection', (socket) => {
         const users = spaces.get(spaceId);
         if (users) {
             users.set(socket.id, userAttributes);
-            io.to(spaceId).emit('updateUsers', Array.from(users.values()));
+            socket.to(spaceId).emit('updateUsers', Array.from(users.values()));
         }
     });
 
